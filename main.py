@@ -23,14 +23,14 @@ class Downloader:
                 self.crafts_id = s.split(' ')
         print(self.crafts_id)
 
-    def get_uuid(self):
+    def download_uuid(self):
         res = self.session.post('https://api.steamworkshopdownloader.io/api/download/request',
                                 '{"publishedFileId":2245892621,"collectionId":null,"extract":true,"hidden":false,"direct":false,"autodownload":false}')
 
         json_d = json.loads(res.text)
         self.uuid = json_d['uuid']
 
-    def get_and_save_binary_file(self):
+    def download_binary_file(self):
         file_url = f'https://api.steamworkshopdownloader.io/api/download/transmit?uuid={self.uuid}'
         file = self.session.get(file_url).content
         with open('craft.txt', 'wb') as test:
@@ -43,8 +43,8 @@ class Downloader:
 
     def run(self):
         while True:
-            self.get_uuid()
-            self.get_and_save_binary_file()
+            self.download_uuid()
+            self.download_binary_file()
             self.reformat_and_unpack_binary_file()
 
 
