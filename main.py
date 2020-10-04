@@ -11,5 +11,5 @@ def craft_ids(self):
 
 installer = Installer(install_dir)
 
-for craft_id in craft_ids:
+for craft_id in craft_ids():
     installer.install(craft_id)
