@@ -14,13 +14,13 @@ class Downloader:
         session.headers.update(headers)
         return session
 
-    def _get_uuid(self, craft_id: int):
+    def _get_uuid(self, craft_id: str):
         """
         Get craft UUID by craft id
         :param craft_id:
         :return: craft UUID
         """
-        d = {'publishedFileId': int(craft_id),
+        d = {'publishedFileId': craft_id,
              'collectionId': None,
              'extract': True,
              'hidden': False,
@@ -40,7 +40,7 @@ class Downloader:
         """
         return self._session.get(f'{self.url}/transmit?uuid={uuid}').content
 
-    def get_file(self, craft_id: int):
+    def get_file(self, craft_id: str):
         """
         Get file by craft id
         :param craft_id:
