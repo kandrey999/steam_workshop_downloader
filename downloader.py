@@ -1,59 +1,50 @@
 from requests import Session
 import json
-import os
 
 
 class Downloader:
-    def __init__(self, crafts_id_folder_name: str,
-                 save_path):  # last_number - Чтобы игра крафты различала(они цифрами названы)                                                                            # в crafts_id_folder_name передавать имя txt файла с 1 строкой(id) без \n
-
-        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0'}
-        self.session = Session()
-        self.session.headers.update(self.headers)
+    def __init__(self):
         self.url = 'https://api.steamworkshopdownloader.io/api/download'
-        self.crafts_id_folder_name = crafts_id_folder_name
-        # self.last_number = last_number
-        self.save_path = save_path
-        self.crafts_id = None
-        self.upload_crafts_id()
+        self._session = self._create_session()
 
-    def upload_crafts_id(self):
-        with open(self.crafts_id_folder_name, 'r') as crafts:
-            self.crafts_id = next(crafts).split(' ')
+    @staticmethod
+    def _create_session():
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0'}
+        session = Session()
+        session.headers.update(headers)
+        return session
 
-    def get_id(self):
-        return self.crafts_id.pop(0)
-
-    def get_uuid(self, id):
-        d = {'publishedFileId':int(id),
+    def _get_uuid(self, craft_id: int):
+        """
+        Get craft UUID by craft id
+        :param craft_id:
+        :return: craft UUID
+        """
+        d = {'publishedFileId': int(craft_id),
              'collectionId': None,
              'extract': True,
              'hidden': False,
              'direct': False,
              'autodownload': False}
 
-        res = self.session.post(f'{self.url}/request', json.dumps(d))
-
+        res = self._session.post(f'{self.url}/request', json.dumps(d))
         json_d = json.loads(res.text)
+
         return json_d['uuid']
 
-    def get_file(self, uuid):
-        return self.session.get(f'{self.url}/transmit?uuid={uuid}').content
+    def _get_file(self, uuid):
+        """
+        Get file content by craft UUID
+        :param uuid: craft UUID
+        :return: file content
+        """
+        return self._session.get(f'{self.url}/transmit?uuid={uuid}').content
 
-    @staticmethod
-    def save_file(content, path):
-        with open(path, 'wb') as f:
-            f.write(content)
-
-    # def rename_unpacked_files(self):
-    #     os.rename()
-
-    def download(self, name):
-        id = self.get_id()
-        if id:
-            print(id)
-            uuid = self.get_uuid(id)
-            file = self.get_file(uuid)
-            self.save_file(file, f'{self.save_path}/{name}.zip')
-
-# downloader = Downloader('crafts.txt', 5)
+    def get_file(self, craft_id: int):
+        """
+        Get file by craft id
+        :param craft_id:
+        :return:
+        """
+        uuid = self._get_uuid(craft_id)
+        return self._get_file(uuid)
