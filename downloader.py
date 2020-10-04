@@ -20,7 +20,7 @@ class Downloader:
         :param craft_id:
         :return: craft UUID
         """
-        d = {'publishedFileId': craft_id,
+        d = {'publishedFileId': int(craft_id),
              'collectionId': None,
              'extract': True,
              'hidden': False,
@@ -28,6 +28,10 @@ class Downloader:
              'autodownload': False}
 
         res = self._session.post(f'{self.url}/request', json.dumps(d))
+
+        if not res.text:
+            raise ValueError(f'uuid not received by craft_id={craft_id}')
+
         json_d = json.loads(res.text)
 
         return json_d['uuid']

@@ -19,10 +19,17 @@ class Installer:
         with ZipFile(file_name, 'r') as z:
             z.extractall(path=dst_dir)
 
-    def _set_file_name(self, file_name):
-        os.rename(os.path.join(self._install_dir, 'vehicle.xml'), os.path.join(self._install_dir, f'{file_name}.xml'))
+    def _set_file_name(self, craft_id: str):
+        os.rename(os.path.join(self._install_dir, 'vehicle.xml'), os.path.join(self._install_dir, f'{craft_id}.xml'))
         os.rename(os.path.join(self._install_dir, 'workshop_preview.png'),
-                  os.path.join(self._install_dir, f'{file_name}.png'))
+                  os.path.join(self._install_dir, f'{craft_id}.png'))
+
+    def _remove_files(self, craft_id: str):
+        path = os.path.join(self._install_dir, f'{craft_id}')
+        files = [f'{path}.xml', f'{path}.png']
+        for file in files:
+            if os.path.exists(file):
+                os.remove(file)
 
     def _get_last_num(self):
         nums = set()
@@ -37,7 +44,7 @@ class Installer:
         content = self._downloader.get_file(craft_id)
         zip_file_name = os.path.join(self._install_dir, f'{craft_id}.zip')
         self._save_file(content, zip_file_name)
-        current_num = str(self._get_last_num() + 1)
         self._unpack_file(zip_file_name, self._install_dir)
-        self._set_file_name(current_num)
-        # os.remove(zip_file_name)
+        self._remove_files(craft_id)
+        self._set_file_name(craft_id)
+        os.remove(zip_file_name)
